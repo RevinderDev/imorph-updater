@@ -6,15 +6,39 @@ authors = ["Mike \"Revinder\" Kasprzyk <michal0kasprzyk@gmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.10"
-black = "^23.1.0"
-isort = "^5.12.0"
-mypy = "^1.0.1"
+python = "^3.9"
 requests-html = "^0.10.0"
 "mega.py" = "^1.0.8"
 
+
 [tool.poetry.dev-dependencies]
+pylint = "^2.16.2"
+black = "^23.1.0"
+isort = "^5.12.0"
+mypy = "^1.0.1"
+
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"
+
+[tool.mypy]
+disallow_untyped_defs = true
+disallow_untyped_calls = true
+disallow_any_explicit = true
+no_implicit_optional = true
+ignore_missing_imports = true
+
+[tool.pylint.SIMILARITIES]
+ignore-imports = true
+
+[tool.pylint.'MESSAGES CONTROL']
+disable = [
+    "missing-function-docstring",
+    "missing-class-docstring",
+    "missing-module-docstring",
+    "too-few-public-methods"
+]

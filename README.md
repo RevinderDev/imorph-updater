@@ -10,7 +10,10 @@ Features:
 * **Update** old version (when there is different version on forum, than the one locally - update it with new forum one and delete old one).
 * **Windows** and **Linux** support.
 
-![SS](https://i.imgur.com/jHJuI9e.png)
+
+<p align="center">
+  <img src="https://i.imgur.com/jHJuI9e.png">
+</p>
 
 ## Download
 
@@ -27,7 +30,10 @@ Double click `.exe` file and console window will pop up.
 * Right click -> Create shortcut on `iMorphUpdater.exe`
 * On shortcut: Right click -> Properties 
 * add `-y` or `--noconfirm` to `Target` like so:
-![Screenshot](https://i.imgur.com/y02ds4Z.png)
+
+<p align="center">
+  <img src="https://i.imgur.com/y02ds4Z.png">
+</p>
 
 ### From command line
 ```

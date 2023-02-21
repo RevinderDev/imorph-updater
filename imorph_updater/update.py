@@ -28,26 +28,26 @@ def _download_imorph(imorph: IMorphDTO, user: Mega) -> None:
 
 
 def _clean_globs(globs: T.List[str], message_format: str = "Removing `%s`") -> None:
-    for glob in globs:
-        print(message_format.format(glob=glob))
-        if os.path.isdir(glob):
-            shutil.rmtree(glob)
-        if os.path.isfile(glob):
-            os.remove(glob)
+    for file in globs:
+        print(message_format.format(file=file))
+        if os.path.isdir(file):
+            shutil.rmtree(file)
+        if os.path.isfile(file):
+            os.remove(file)
 
 
 def _cleanup(old_imorphs_paths: T.List[str]) -> None:
     _clean_globs(
         globs=glob.glob(f"{DOWNLOAD_FOLDER}/*.zip"),
-        message_format="Removing downloaded iMorph archive `{glob}`",
+        message_format="Removing downloaded iMorph archive `{file}`",
     )
     _clean_globs(
         globs=glob.glob(f"{tempfile.gettempdir()}/megapy*"),
-        message_format="Removing temporary mega iMorph files `{glob}`",
+        message_format="Removing temporary mega iMorph files `{file}`",
     )
     _clean_globs(
         globs=old_imorphs_paths,
-        message_format="Removing old iMorph version `{glob}`",
+        message_format="Removing old iMorph version `{file}`",
     )
 
 
@@ -89,8 +89,8 @@ async def _imorph_update(noconfirm: bool) -> None:
     print("Warning, before using new versions check on forum if it's safe!")
     print(f"iMorph Discord: {DISCORD_LINK}")
     print(f"iMorph forum thread: {OWNED_CORE_LINK}\n\n")
-    mega_user = Mega().login()
     print("Fetching download links from owned core..")
+    mega_user = Mega().login()
     imorphs, old_imorphs_paths = _check_imorphs()
 
     if imorphs:

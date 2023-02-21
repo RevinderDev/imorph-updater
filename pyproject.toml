@@ -6,8 +6,8 @@ authors = ["Mike \"Revinder\" Kasprzyk <michal0kasprzyk@gmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.9"
-requests-html = "^0.10.0"
+python = "^3.9" # TODO: Bump python to 3.11 or 3.12
+requests-html = "^0.10.0" # TODO: remove this package 
 "mega.py" = "^1.0.8"
 
 

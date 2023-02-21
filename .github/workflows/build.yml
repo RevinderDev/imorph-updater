@@ -21,6 +21,7 @@ jobs:
         python -m pip install --upgrade pip setuptools wheel
         pip install -r requirements.txt
         pip install pyinstaller --no-binary pyinstaller
+        pip uninstall pathlib
     - name: Build binary
       run: pyinstaller -i iMorphUpdater.ico --onefile -y --console --name iMorphUpdater --noupx runner.py
     - name: Upload binary
@@ -42,6 +43,7 @@ jobs:
         python -m pip install --upgrade pip setuptools wheel
         pip install -r requirements.txt
         pip install pyinstaller
+        pip uninstall pathlib
     - name: Build binary
       run: pyinstaller -i iMorphUpdater.ico --onefile -y --console --name iMorphUpdater --noupx runner.py
     - name: Upload binary

@@ -7,7 +7,7 @@ lint:
 	&& pylint -j 4 $(SOURCE)
 
 package:
-	pyinstaller --onefile -y --console --name IMorphUpdater --strip --noupx imorph_updater.py
+	pyinstaller --onefile -y --console --name IMorphUpdater --noupx runner.py
 
 run:
-	python imorph_updater.py
+	python runner.py

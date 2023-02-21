@@ -1,3 +1,3 @@
-from .main import imorph_run
+from .update import imorph_update
 
-__all__ = ["imorph_run"]
+__all__ = ["imorph_update"]

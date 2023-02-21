@@ -14,7 +14,12 @@ from .constants import DISCORD_LINK, DOWNLOAD_FOLDER, OWNED_CORE_LINK
 from .models import IMorphDTO
 
 
-async def _download_imorph(imorph: IMorphDTO, user: Mega) -> None:
+def imorph_update(noconfirm: bool = False) -> None:
+    asyncio.run(_imorph_update(noconfirm))
+    input("\nPress anything to close.")
+
+
+def _download_imorph(imorph: IMorphDTO, user: Mega) -> None:
     print(f"Downloading `{imorph.full_name}` to `{DOWNLOAD_FOLDER}`")
     try:
         user.download_url(imorph.link, DOWNLOAD_FOLDER, dest_filename=imorph.zip_name)
@@ -22,22 +27,28 @@ async def _download_imorph(imorph: IMorphDTO, user: Mega) -> None:
         return
 
 
-def _clean_temp_files() -> None:
-    temp_dir = tempfile.gettempdir()
-    for filename in glob.glob(f"{temp_dir}/megapy*"):
-        print(f"Removing temporary mega imorph files `{filename}`")
-        os.remove(filename)
+def _clean_globs(globs: T.List[str], message_format: str = "Removing `%s`") -> None:
+    for glob in globs:
+        print(message_format.format(glob=glob))
+        if os.path.isdir(glob):
+            shutil.rmtree(glob)
+        if os.path.isfile(glob):
+            os.remove(glob)
 
 
-def _clean_archives() -> None:
-    for filename in glob.glob(f"{DOWNLOAD_FOLDER}/*.zip"):
-        print(f"Removing downloaded archive `{filename}`")
-        os.remove(filename)
-
-
-def _cleanup_imorph() -> None:
-    _clean_archives()
-    _clean_temp_files()
+def _cleanup(old_imorphs_paths: T.List[str]) -> None:
+    _clean_globs(
+        globs=glob.glob(f"{DOWNLOAD_FOLDER}/*.zip"),
+        message_format="Removing downloaded iMorph archive `{glob}`",
+    )
+    _clean_globs(
+        globs=glob.glob(f"{tempfile.gettempdir()}/megapy*"),
+        message_format="Removing temporary mega iMorph files `{glob}`",
+    )
+    _clean_globs(
+        globs=old_imorphs_paths,
+        message_format="Removing old iMorph version `{glob}`",
+    )
 
 
 def _extract_imorph(imorph: IMorphDTO) -> None:
@@ -53,6 +64,7 @@ def _check_imorphs() -> T.Tuple[T.List[IMorphDTO], T.List[str]]:
     folders = glob.glob(f"{DOWNLOAD_FOLDER}/*iMorph*")
     old_imorphs: list = []
     if not folders:
+        print("No old iMorph versions found.")
         return (imorphs, old_imorphs)
     updatedable_imorphs = []
     for imorph in imorphs:
@@ -73,39 +85,34 @@ def _get_imorph_dtos() -> T.List[IMorphDTO]:
         ]
 
 
-def _remove_old_imorphs(old_imorphs: T.List[str]) -> None:
-    for old_imorph in old_imorphs:
-        print(f"Removing old iMorph version `{old_imorph}`")
-        shutil.rmtree(old_imorph)
-
-
-async def _main() -> None:
+async def _imorph_update(noconfirm: bool) -> None:
     print("Warning, before using new versions check on forum if it's safe!")
     print(f"iMorph Discord: {DISCORD_LINK}")
     print(f"iMorph forum thread: {OWNED_CORE_LINK}\n\n")
     mega_user = Mega().login()
-    Path("imorphs").mkdir(parents=True, exist_ok=True)
     print("Fetching download links from owned core..")
-    imorphs, old_imorphs = _check_imorphs()
-    print("Fetched download links from owned core.")
+    imorphs, old_imorphs_paths = _check_imorphs()
+
     if imorphs:
         for imorph in imorphs:
             print(f"Found new version: `{imorph.full_name}`")
-        for old_imorph in old_imorphs:
-            print(f"Found existing old imorph: `{old_imorph}`")
-        if input("Remove old and install new [Y/n]? ") not in ["y", "yes", "YES", "Y"]:
-            return
+        for old_imorph_path in old_imorphs_paths:
+            print(f"Found existing old iMorph: `{old_imorph_path}`")
+        if not noconfirm:
+            if input("Remove old and install new [Y/n]? ") not in [
+                "y",
+                "yes",
+                "YES",
+                "Y",
+            ]:
+                return
     else:
         print("No new versions found.")
         return
-    _remove_old_imorphs(old_imorphs)
+    Path(DOWNLOAD_FOLDER).mkdir(parents=True, exist_ok=True)
     for imorph in imorphs:
-        await _download_imorph(imorph, mega_user)
+        _download_imorph(imorph, mega_user)
         _extract_imorph(imorph)
-    _cleanup_imorph()
+    _cleanup(old_imorphs_paths)
+
     print("All good!")
-
-
-def imorph_run() -> None:
-    asyncio.run(_main())
-    input("\nPress anything to close.")

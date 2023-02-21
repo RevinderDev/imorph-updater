@@ -27,7 +27,7 @@ jobs:
     - name: Upload binary
       uses: actions/upload-artifact@v3
       with:
-        name: Windows
+        name: iMorphUpdater-Windows
         path: dist/iMorphUpdater.exe
 
   linux:
@@ -49,5 +49,5 @@ jobs:
     - name: Upload binary
       uses: actions/upload-artifact@v3
       with:
-        name: Linux
+        name: iMorphUpdater-Linux
         path: dist/iMorphUpdater

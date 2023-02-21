@@ -1,4 +1,5 @@
-# TUI iMorph Updater
+# CLI iMorph Updater
+[<img src="https://img.shields.io/github/release/RevinderDev/imorph-updater">](https://github.com/RevinderDev/imorph-updater) [<img src="https://img.shields.io/github/downloads/RevinderDev/imorph-updater/latest/total">](https://github.com/RevinderDev/imorph-updater/releases/latest) [<img src="https://img.shields.io/github/downloads/RevinderDev/imorph-updater/total">](https://github.com/RevinderDev/imorph-updater/releases/latest) [<img src="https://img.shields.io/github/actions/workflow/status/RevinderDev/imorph-updater/build.yml">](https://github.com/RevinderDev/imorph-updater/actions)
 
 CLI iMorph updater.
 Features:  
@@ -10,13 +11,18 @@ Features:
 
 ![SS](https://i.imgur.com/jHJuI9e.png)
 
-
 ## Download
 
-TODO:
+The latest release can be found [here](https://github.com/RevinderDev/imorph-updater/releases/latest).
 
-## Running from CL
+## Running
 
+
+### For windows
+
+Double click `.exe` file and console window will pop up.
+
+### From command line
 ```
 usage: iMorphUpdater [-h] [-y]
 
@@ -28,6 +34,10 @@ optional arguments:
 ```
 $ ./iMorphUpdater -y
 $ ./iMorphUpdater
+```
+On linux make sure it has correct modes
+```
+$ chmod +x iMorphUpdater
 ```
 
 

@@ -3,11 +3,12 @@
 
 CLI iMorph updater.
 Features:  
-* Automatically fetches new versions of iMorph from [OwnedCore](https://www.ownedcore.com/forums/wow-classic/wow-classic-bots-programs/935744-imorph-wow-classic.html)
-* Extracts everything to predefined folder.
-* Cleans up all temporary and unnecessary files.
-* Minimal interaction required for total laziness.
-* Windows and Linux support.
+* **Automatically** fetches new versions of iMorph from [OwnedCore](https://www.ownedcore.com/forums/wow-classic/wow-classic-bots-programs/935744-imorph-wow-classic.html)
+* **Extracts** everything to predefined folder.
+* **Cleans up** all temporary and unnecessary files.
+* **Minimal** interaction required for total laziness.
+* **Update** old version (when there is different version on forum, than the one locally - update it with new forum one and delete old one).
+* **Windows** and **Linux** support.
 
 ![SS](https://i.imgur.com/jHJuI9e.png)
 
@@ -18,9 +19,15 @@ The latest release can be found [here](https://github.com/RevinderDev/imorph-upd
 ## Running
 
 
-### For windows
+### For Windows
 
-Double click `.exe` file and console window will pop up.
+Double click `.exe` file and console window will pop up. 
+
+**TIP**: If you wish to never have to confirm `Remove old and install new [Y/n]? ` prompt then do the following:
+* Right click -> Create shortcut on `iMorphUpdater.exe`
+* On shortcut: Right click -> Properties 
+* add `-y` or `--noconfirm` to `Target` like so:
+![Screenshot](https://i.imgur.com/y02ds4Z.png)
 
 ### From command line
 ```
@@ -35,7 +42,7 @@ optional arguments:
 $ ./iMorphUpdater -y
 $ ./iMorphUpdater
 ```
-On linux make sure it has correct modes
+On linux make sure it has correct modes:
 ```
 $ chmod +x iMorphUpdater
 ```
@@ -44,11 +51,16 @@ $ chmod +x iMorphUpdater
 ## Development & Contributing
 
 Requirements:
-- poetry
-- python 3.9
+- Poetry
+- Python 3.9
 - Linux recommended for easy `Makefile` access.
 
-For linting use:
+Installing dependencies:
+```
+$ poetry install
+```
+
+For linting:
 ```
 $ make lint
 ```

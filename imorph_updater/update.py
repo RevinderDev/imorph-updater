@@ -7,10 +7,10 @@ import typing as T
 from pathlib import Path
 from zipfile import ZipFile
 
-from mega import Mega
 from requests_html import HTMLSession
 
 from .constants import DISCORD_LINK, DOWNLOAD_FOLDER, OWNED_CORE_LINK
+from .mega import Mega
 from .models import IMorphDTO
 
 

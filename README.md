@@ -9,6 +9,7 @@ Features:
 * **Minimal** interaction required for total laziness.
 * **Update** old version (when there is different version on forum, than the one locally - update it with new forum one and delete old one).
 * **Windows** and **Linux** support.
+* As with iMorph alone - use at your own risk, though this does NOT touch anything wow/blizzard related.
 
 
 <p align="center">

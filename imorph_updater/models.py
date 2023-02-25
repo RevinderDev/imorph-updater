@@ -21,7 +21,7 @@ class IMorphDTO:
 
     @property
     def full_name(self) -> str:
-        return f"{self.version:s} - {self.forum_name}"
+        return f"{self.version} - {self.forum_name}"
 
     @property
     def zip_name(self) -> str:

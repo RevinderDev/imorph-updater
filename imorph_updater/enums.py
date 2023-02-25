@@ -1,17 +1,19 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class WoWVersion(str, Enum):
+class WoWVersion(StrEnum):
     CLASSIC = "Classic"
     CLASSIC_SOM = "Classic SOM"
     RETAIL = "Retail"
 
     @staticmethod
     def from_text(text: str) -> "WoWVersion":
-        if text == "[1.":
-            return WoWVersion.CLASSIC_SOM
-        if text == "[3.":
-            return WoWVersion.CLASSIC
-        if text == "[10.":
-            return WoWVersion.RETAIL
-        assert False
+        match text:
+            case "[1.":
+                return WoWVersion.CLASSIC_SOM
+            case "[3.":
+                return WoWVersion.CLASSIC
+            case "[10.":
+                return WoWVersion.RETAIL
+            case _:
+                assert False

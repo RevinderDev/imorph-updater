@@ -6,7 +6,7 @@ import struct
 
 from Crypto.Cipher import AES
 
-AESType = list[int, int, int, int]
+AESKeyType = list[int]
 
 
 def makebyte(x):
@@ -22,7 +22,7 @@ def aes_cbc_encrypt(data, key):
     return aes_cipher.encrypt(data)
 
 
-def aes_cbc_decrypt(data, key):
+def aes_cbc_decrypt(data, key) -> bytes:
     aes_cipher = AES.new(key, AES.MODE_CBC, b"0" * 16)
     return aes_cipher.decrypt(data)
 
@@ -57,30 +57,19 @@ def prepare_key(arr):
     return pkey
 
 
-def encrypt_key(a, key):
-    return sum(
-        (aes_cbc_encrypt_a32(a[i : i + 4], key) for i in range(0, len(a), 4)), ()
-    )
+def encrypt_key(key: AESKeyType, password_key: AESKeyType) -> tuple:
+    return aes_cbc_encrypt_a32(key, password_key)
 
 
-def decrypt_key(a, key):
-    return sum(
-        (aes_cbc_decrypt_a32(a[i : i + 4], key) for i in range(0, len(a), 4)), ()
-    )
+def decrypt_key(key: AESKeyType, password_key: AESKeyType) -> tuple:
+    return aes_cbc_encrypt_a32(key, password_key)
 
 
 def encrypt_attr(attr, key):
-    attr = makebyte("MEGA" + json.dumps(attr))
+    attr = ("MEGA" + json.dumps(attr)).encode("utf-8")
     if len(attr) % 16:
         attr += b"\0" * (16 - len(attr) % 16)
     return aes_cbc_encrypt(attr, a32_to_str(key))
-
-
-def decrypt_attr(attr, key):
-    attr = aes_cbc_decrypt(attr, a32_to_str(key))
-    attr = makestring(attr)
-    attr = attr.rstrip("\0")
-    return json.loads(attr[4:]) if attr[:6] == 'MEGA{"' else False
 
 
 def a32_to_str(a):
@@ -89,7 +78,7 @@ def a32_to_str(a):
 
 def str_to_a32(b):
     if isinstance(b, str):
-        b = makebyte(b)
+        b = b.encode("utf-8")
     if len(b) % 4:
         # pad to multiple of 4
         b += b"\0" * (4 - len(b) % 4)
@@ -133,8 +122,7 @@ def base64_to_a32(s):
 
 
 def base64_url_encode(data):
-    data = base64.b64encode(data)
-    data = makestring(data)
+    data = base64.b64encode(data).decode("utf-8")
     for search, replace in (("+", "-"), ("/", "_"), ("=", "")):
         data = data.replace(search, replace)
     return data
@@ -144,7 +132,7 @@ def a32_to_base64(a):
     return base64_url_encode(a32_to_str(a))
 
 
-def get_chunks(size):
+def get_chunks(size: int) -> tuple[int, int]:
     p = 0
     s = 0x20000
     while p + s < size:

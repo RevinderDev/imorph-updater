@@ -2,11 +2,8 @@ import binascii
 import json
 import logging
 import math
-import os
 import random
 import re
-import shutil
-import tempfile
 import typing as T
 import uuid
 from pathlib import Path
@@ -17,13 +14,12 @@ from Crypto.PublicKey import RSA
 from Crypto.Util import Counter
 
 from .encrypt import (
-    AESType,
+    AESKeyType,
     a32_to_base64,
     a32_to_str,
     base64_to_a32,
     base64_url_decode,
     base64_url_encode,
-    decrypt_attr,
     decrypt_key,
     encrypt_key,
     get_chunks,
@@ -102,7 +98,7 @@ class Mega:
             raise Exception(int_resp)
         return json_resp[0]
 
-    def _login_process(self, resp: dict, password: AESType) -> None:
+    def _login_process(self, resp: dict, password: AESKeyType) -> None:
         encrypted_master_key = base64_to_a32(resp["k"])
         self.master_key = decrypt_key(encrypted_master_key, password)
         if "tsid" in resp:
@@ -157,8 +153,8 @@ class Mega:
     def download_url(
         self,
         url: str,
-        dest_path: T.Optional[Path] = None,
-        dest_filename: T.Optional[Path] = None,
+        dest_path: Path,
+        dest_filename: Path,
     ) -> Path:
         """
         Download a file by it's public url
@@ -176,8 +172,8 @@ class Mega:
         self,
         file_handle: str,
         file_key: str,
-        dest_path: T.Optional[Path] = None,
-        dest_filename: T.Optional[Path] = None,
+        dest_path: Path,
+        dest_filename: Path,
         is_public: bool = False,
     ) -> Path:
         if is_public:
@@ -202,24 +198,11 @@ class Mega:
             raise Exception("File not accessible anymore")
         file_url = file_data["g"]
         file_size = file_data["s"]
-        attribs = base64_url_decode(file_data["at"])
-        attribs = decrypt_attr(attribs, k)
-
-        if dest_filename is not None:
-            file_name = dest_filename
-        else:
-            file_name = attribs["n"]
 
         input_file = requests.get(file_url, stream=True).raw
+        output_path = Path("./", dest_path, dest_filename)
 
-        if dest_path is None:
-            dest_path = ""
-        else:
-            dest_path += "/"
-
-        with tempfile.NamedTemporaryFile(
-            mode="w+b", prefix="megapy_", delete=False
-        ) as temp_output_file:
+        with open(output_path, mode="w+b") as temp_output_file:
             k_str = a32_to_str(k)
             counter = Counter.new(128, initial_value=((iv[0] << 32) + iv[1]) << 64)
             aes = AES.new(k_str, AES.MODE_CTR, counter=counter)
@@ -227,10 +210,9 @@ class Mega:
             mac_str = "\0" * 16
             mac_encryptor = AES.new(k_str, AES.MODE_CBC, mac_str.encode("utf8"))
             iv_str = a32_to_str([iv[0], iv[1], iv[0], iv[1]])
-
             for _, chunk_size in get_chunks(file_size):
-                chunk = input_file.read(chunk_size)
-                chunk = aes.decrypt(chunk)
+                encrypted_chunk = input_file.read(chunk_size)
+                chunk = aes.decrypt(encrypted_chunk)
                 temp_output_file.write(chunk)
 
                 encryptor = AES.new(k_str, AES.MODE_CBC, iv_str)
@@ -248,15 +230,10 @@ class Mega:
                 if len(block) % 16:
                     block += b"\0" * (16 - (len(block) % 16))
                 mac_str = mac_encryptor.encrypt(encryptor.encrypt(block))
-
-                file_info = os.stat(temp_output_file.name)
-                logger.info("%s of %s downloaded", file_info.st_size, file_size)
-            file_mac = str_to_a32(mac_str)
-            # check mac integrity
-            if (file_mac[0] ^ file_mac[1], file_mac[2] ^ file_mac[3]) != meta_mac:
-                raise ValueError("Mismatched mac")
-            output_path = Path(dest_path + file_name)
-            shutil.move(temp_output_file.name, output_path)
+                file_mac = str_to_a32(mac_str)
+                # check mac integrity
+                if (file_mac[0] ^ file_mac[1], file_mac[2] ^ file_mac[3]) != meta_mac:
+                    raise ValueError("Mismatched mac")
             return output_path
 
     def _parse_url(self, url: str) -> str:

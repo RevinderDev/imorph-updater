@@ -21,10 +21,7 @@ def imorph_update(noconfirm: bool = False) -> None:
 
 def _download_imorph(imorph: IMorphDTO, user: Mega) -> None:
     print(f"Downloading `{imorph.full_name}` to `{DOWNLOAD_FOLDER}`")
-    try:
-        user.download_url(imorph.link, DOWNLOAD_FOLDER, dest_filename=imorph.zip_name)
-    except PermissionError:
-        return
+    user.download_url(imorph.link, DOWNLOAD_FOLDER, dest_filename=Path(imorph.zip_name))
 
 
 def _clean_globs(globs: T.List[str], message_format: str = "Removing `%s`") -> None:

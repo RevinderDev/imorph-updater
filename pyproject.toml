@@ -8,7 +8,7 @@ license = "MIT"
 [tool.poetry.dependencies]
 python = "^3.11"
 requests-html = "^0.10.0" # TODO: remove this package 
-"mega.py" = "^1.0.8"
+pycryptodome = "^3.17"
 
 
 [tool.poetry.dev-dependencies]
@@ -31,6 +31,10 @@ disallow_untyped_calls = true
 disallow_any_explicit = true
 no_implicit_optional = true
 ignore_missing_imports = true
+exclude="/mega"
+
+[tool.pylint.master]
+ignore-paths = ["imorph_updater/mega"]
 
 [tool.pylint.SIMILARITIES]
 ignore-imports = true

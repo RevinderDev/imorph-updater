@@ -79,9 +79,9 @@ def _get_imorph_dtos() -> T.List[IMorphDTO]:
     with HTMLSession() as session:
         response = session.get(OWNED_CORE_LINK)
         return [
-            IMorphDTO(forum_name=link.element.text, link=link.attrs["href"])
-            for link in response.html.find("a[target='_blank'][href*='mega.nz']")
-            if "(" not in link.element.text
+            IMorphDTO(forum_name=link.element.text_content(), link=link.attrs["href"])
+            for link in response.html.find("a[target='_blank'][href*='mega.nz/file']")
+            if "(net)" in link.element.text_content()
         ]
 
 

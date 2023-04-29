@@ -1,6 +1,5 @@
 import re
-import typing as T
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from .enums import WoWVersion
 
@@ -9,15 +8,12 @@ from .enums import WoWVersion
 class IMorphDTO:
     forum_name: str
     link: str
-    _wow_version: T.Optional[WoWVersion] = None
+    version: WoWVersion = field(init=False)
 
-    @property
-    def version(self) -> T.Optional[WoWVersion]:
-        if not self._wow_version:
-            version_match = re.search(r"\[\d+.", self.forum_name)
-            if version_match:
-                self._wow_version = WoWVersion.from_text(version_match.group())
-        return self._wow_version
+    def __post_init__(self) -> None:
+        version_match = re.search(r"\[\d+.", self.forum_name)
+        if version_match:
+            self.version = WoWVersion.from_text(version_match.group())
 
     @property
     def full_name(self) -> str:

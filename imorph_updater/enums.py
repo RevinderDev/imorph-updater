@@ -11,8 +11,8 @@ class WoWVersion(str, Enum):
         Retail      - iMorph - 1.4.27 (net) (menu) [10.1.0.50000]
     """
 
-    CLASSIC = "Classic", re.compile(r"(\(net\)) \[(1.14.\d.\d{5})\]")
-    CLASSIC_SOM = "Classic SOM", re.compile(r"(\(net\) \(menu\)) \[(3.4.\d.\d{5})\]")
+    CLASSIC = "Classic", re.compile(r"(\(net\) \(menu\)) \[(3.4.\d.\d{5})\]")
+    CLASSIC_SOM = "Classic SOM", re.compile(r"(\(net\)) \[(1.14.\d.\d{5})\]")
     RETAIL = "Retail", re.compile(r"(\(net\) \(menu\)) \[(10.\d.\d.\d{5})\]")
 
     @T.no_type_check

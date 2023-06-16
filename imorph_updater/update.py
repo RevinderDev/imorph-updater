@@ -11,6 +11,7 @@ from mega import Mega
 from requests_html import HTMLSession
 
 from .constants import DISCORD_LINK, DOWNLOAD_FOLDER, OWNED_CORE_LINK
+from .enums import WoWVersion
 from .models import IMorphDTO
 
 
@@ -78,11 +79,26 @@ def _check_imorphs() -> T.Tuple[T.List[IMorphDTO], T.List[str]]:
 def _get_imorph_dtos() -> T.List[IMorphDTO]:
     with HTMLSession() as session:
         response = session.get(OWNED_CORE_LINK)
-        return [
-            IMorphDTO(forum_name=link.element.text_content(), link=link.attrs["href"])
-            for link in response.html.find("a[target='_blank'][href*='mega.nz/file']")
-            if "(net)" in link.element.text_content()
-        ]
+        dtos = []
+        for link in response.html.find("a[target='_blank'][href*='mega.nz/file']"):
+            text = link.element.text_content()
+            wow_version = None
+            if WoWVersion.CLASSIC.pattern.search(text):
+                wow_version = WoWVersion.CLASSIC
+            if WoWVersion.CLASSIC_SOM.pattern.search(text):
+                wow_version = WoWVersion.CLASSIC_SOM
+            if WoWVersion.RETAIL.pattern.search(text):
+                wow_version = WoWVersion.RETAIL
+            if wow_version is None:
+                continue
+            dtos.append(
+                IMorphDTO(
+                    forum_name=link.element.text_content(),
+                    link=link.attrs["href"],
+                    version=wow_version,
+                )
+            )
+        return dtos
 
 
 async def _imorph_update(noconfirm: bool) -> None:

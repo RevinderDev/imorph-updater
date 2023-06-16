@@ -1,17 +1,27 @@
+import re
+import typing as T
 from enum import Enum
 
 
 class WoWVersion(str, Enum):
-    CLASSIC = "Classic"
-    CLASSIC_SOM = "Classic SOM"
-    RETAIL = "Retail"
+    """
+    Regex examples:
+        Classic     - iMorph - 1.3.29 (net) [1.14.3.49821]
+        Classic SOM - iMorph - 1.4.30 (net) (menu) [3.4.1.49936]
+        Retail      - iMorph - 1.4.27 (net) (menu) [10.1.0.50000]
+    """
 
-    @staticmethod
-    def from_text(text: str) -> "WoWVersion":
-        if text == "[1.":
-            return WoWVersion.CLASSIC_SOM
-        if text == "[3.":
-            return WoWVersion.CLASSIC
-        if text == "[10.":
-            return WoWVersion.RETAIL
-        assert False
+    CLASSIC = "Classic", re.compile(r"(\(net\)) \[(1.14.\d.\d{5})\]")
+    CLASSIC_SOM = "Classic SOM", re.compile(r"(\(net\) \(menu\)) \[(3.4.\d.\d{5})\]")
+    RETAIL = "Retail", re.compile(r"(\(net\) \(menu\)) \[(10.\d.\d.\d{5})\]")
+
+    @T.no_type_check
+    def __new__(cls, value: str, pattern: re.Pattern) -> "WoWVersion":
+        entry = str.__new__(cls)
+        entry._value_ = value
+        entry._pattern = pattern
+        return entry
+
+    @property
+    def pattern(self) -> re.Pattern:
+        return self._pattern  # type: ignore

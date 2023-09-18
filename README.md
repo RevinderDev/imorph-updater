@@ -71,6 +71,12 @@ For linting:
 $ make lint
 ```
 
+For formatting:
+```
+$ make format
+```
+
+
 Building binary:
 
 ```

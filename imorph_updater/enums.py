@@ -1,5 +1,5 @@
 import re
-import typing as T
+import typing
 from enum import Enum
 
 
@@ -11,11 +11,11 @@ class WoWVersion(str, Enum):
         Retail      - iMorph - 1.4.27 (net) (menu) [10.1.0.50000]
     """
 
-    CLASSIC = "Classic", re.compile(r"(\(net\) \(menu\)) \[(3.4.\d.\d{5})\]")
+    CLASSIC = "Classic", re.compile(r"(\(net\)) \[(3.4.\d.\d{5})\]")
     CLASSIC_SOM = "Classic SOM", re.compile(r"(\(net\)) \[(1.14.\d.\d{5})\]")
-    RETAIL = "Retail", re.compile(r"(\(net\) \(menu\)) \[(10.\d.\d.\d{5})\]")
+    RETAIL = "Retail", re.compile(r"(\(net\)) \[(10.\d.\d.\d{5})\]")
 
-    @T.no_type_check
+    @typing.no_type_check
     def __new__(cls, value: str, pattern: re.Pattern) -> "WoWVersion":
         entry = str.__new__(cls)
         entry._value_ = value
@@ -23,5 +23,6 @@ class WoWVersion(str, Enum):
         return entry
 
     @property
+    @typing.no_type_check
     def pattern(self) -> re.Pattern:
-        return self._pattern  # type: ignore
+        return self._pattern

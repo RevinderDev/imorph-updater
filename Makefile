@@ -1,13 +1,11 @@
-SOURCE="imorph_updater"
+format:
+	./format.sh
 
 lint:
-	isort $(SOURCE) \
-	&& black $(SOURCE) \
-	&& mypy $(SOURCE) \
-	&& pylint -j 4 $(SOURCE)
+	./lint.sh
 
 package:
-	pyinstaller -i iMorphUpdater.ico --onefile -y --console --name iMorphUpdater --noupx runner.py
+	pyinstaller -i iMorphUpdater.ico --paths ./.venv/lib/python3.9/site-packages --onefile -y --console --name iMorphUpdater --noupx imorph_updater/__main__.py
 
 run:
 	python runner.py --noconfirm  

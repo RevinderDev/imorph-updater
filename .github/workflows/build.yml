@@ -23,7 +23,7 @@ jobs:
         pip install pyinstaller --no-binary pyinstaller
         pip uninstall -y pathlib
     - name: Build binary
-      run: pyinstaller -i iMorphUpdater.ico --onefile -y --console --name iMorphUpdater --noupx runner.py
+      run: pyinstaller -i iMorphUpdater.ico --onefile -y --console --name iMorphUpdater --noupx imorph_updater/__main__.py
     - name: Upload binary
       uses: actions/upload-artifact@v3
       with:
@@ -45,7 +45,7 @@ jobs:
         pip install pyinstaller
         pip uninstall -y pathlib
     - name: Build binary
-      run: pyinstaller -i iMorphUpdater.ico --onefile -y --console --name iMorphUpdater --noupx runner.py
+      run: pyinstaller -i iMorphUpdater.ico --onefile -y --console --name iMorphUpdater --noupx imorph_updater/__main__.py
     - name: Upload binary
       uses: actions/upload-artifact@v3
       with:

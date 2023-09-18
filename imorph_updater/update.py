@@ -3,16 +3,21 @@ import glob
 import os
 import shutil
 import tempfile
-import typing as T
 from pathlib import Path
+from typing import List, Tuple
 from zipfile import ZipFile
 
 from mega import Mega
 from requests_html import HTMLSession
 
-from .constants import DISCORD_LINK, DOWNLOAD_FOLDER, OWNED_CORE_LINK
 from .enums import WoWVersion
 from .models import IMorphDTO
+
+OWNED_CORE_LINK = (
+    "https://www.ownedcore.com/forums/wow-classic/wow-classic-bots-programs/935744-imorph-wow-classic.html"
+)
+DISCORD_LINK = "https://discord.gg/imorph-wow-morpher-459575858970230784"
+DOWNLOAD_FOLDER = "iMorphs"
 
 
 def imorph_update(noconfirm: bool = False) -> None:
@@ -28,16 +33,15 @@ def _download_imorph(imorph: IMorphDTO, user: Mega) -> None:
         return
 
 
-def _clean_globs(globs: T.List[str], message_format: str = "Removing `%s`") -> None:
-    for file in globs:
-        print(message_format.format(file=file))
-        if os.path.isdir(file):
-            shutil.rmtree(file)
-        if os.path.isfile(file):
-            os.remove(file)
+def _cleanup(old_imorphs_paths: List[str]) -> None:
+    def _clean_globs(globs: List[str], message_format: str = "Removing `%s`") -> None:
+        for file in globs:
+            print(message_format.format(file=file))
+            if os.path.isdir(file):
+                shutil.rmtree(file)
+            if os.path.isfile(file):
+                os.remove(file)
 
-
-def _cleanup(old_imorphs_paths: T.List[str]) -> None:
     _clean_globs(
         globs=glob.glob(f"{DOWNLOAD_FOLDER}/*.zip"),
         message_format="Removing downloaded iMorph archive `{file}`",
@@ -60,10 +64,10 @@ def _extract_imorph(imorph: IMorphDTO) -> None:
         zip_file.extractall(dest)
 
 
-def _check_imorphs() -> T.Tuple[T.List[IMorphDTO], T.List[str]]:
-    imorphs = _get_imorph_dtos()
+def _check_possible_imorphs_updates() -> Tuple[List[IMorphDTO], List[str]]:
+    imorphs = _get_imorphs()
     folders = glob.glob(f"{DOWNLOAD_FOLDER}/*iMorph*")
-    old_imorphs: list = []
+    old_imorphs: List[str] = []
     if not folders:
         print("No old iMorph versions found.")
         return (imorphs, old_imorphs)
@@ -76,20 +80,18 @@ def _check_imorphs() -> T.Tuple[T.List[IMorphDTO], T.List[str]]:
     return (updatedable_imorphs, old_imorphs)
 
 
-def _get_imorph_dtos() -> T.List[IMorphDTO]:
+def _get_imorphs() -> List[IMorphDTO]:
     with HTMLSession() as session:
         response = session.get(OWNED_CORE_LINK)
         dtos = []
         for link in response.html.find("a[target='_blank'][href*='mega.nz/file']"):
             text = link.element.text_content()
             wow_version = None
-            if WoWVersion.CLASSIC.pattern.search(text):
-                wow_version = WoWVersion.CLASSIC
-            if WoWVersion.CLASSIC_SOM.pattern.search(text):
-                wow_version = WoWVersion.CLASSIC_SOM
-            if WoWVersion.RETAIL.pattern.search(text):
-                wow_version = WoWVersion.RETAIL
-            if wow_version is None:
+            for version in WoWVersion:
+                if version.pattern.search(text):
+                    wow_version = version
+                    break
+            else:
                 continue
             dtos.append(
                 IMorphDTO(
@@ -107,21 +109,20 @@ async def _imorph_update(noconfirm: bool) -> None:
     print(f"iMorph forum thread: {OWNED_CORE_LINK}\n\n")
     print("Fetching download links from owned core..")
     mega_user = Mega().login()
-    imorphs, old_imorphs_paths = _check_imorphs()
+    imorphs, old_imorphs_paths = _check_possible_imorphs_updates()
 
     if imorphs:
         for imorph in imorphs:
             print(f"Found new version: `{imorph.full_name}`")
         for old_imorph_path in old_imorphs_paths:
             print(f"Found existing old iMorph: `{old_imorph_path}`")
-        if not noconfirm:
-            if input("Remove old and install new [Y/n]? ") not in [
-                "y",
-                "yes",
-                "YES",
-                "Y",
-            ]:
-                return
+        if not noconfirm and input("Remove old and install new [Y/n]? ") not in [
+            "y",
+            "yes",
+            "YES",
+            "Y",
+        ]:
+            return
     else:
         print("No new versions found.")
         return

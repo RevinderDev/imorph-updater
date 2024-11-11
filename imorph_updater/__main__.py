@@ -1,6 +1,6 @@
 import argparse
 
-from imorph_updater import imorph_update
+from imorph_updater import WoWVersion, imorph_update
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -10,4 +10,16 @@ if __name__ == "__main__":
         help="Auto confirm iMorph replacing/downloading.",
         action="store_true",
     )
-    imorph_update(parser.parse_args().noconfirm)
+    choices = [version.name for version in WoWVersion]
+    parser.add_argument(
+        "-w",
+        default=[],
+        help="Choose which WoWVersions iMorphs you want to download",
+        nargs="+",
+        metavar=",".join(choices),
+    )
+    parsed_args = parser.parse_args()
+    if not (wow_versions := parsed_args.w):
+        wow_versions.append(WoWVersion.RETAIL.name)
+
+    imorph_update(parsed_args.noconfirm, [WoWVersion[arg] for arg in wow_versions])

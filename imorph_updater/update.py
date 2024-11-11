@@ -18,8 +18,8 @@ DISCORD_LINK = "https://discord.gg/imorph-wow-morpher-459575858970230784"
 DOWNLOAD_FOLDER = "iMorphs"
 
 
-def imorph_update(noconfirm: bool = False) -> None:
-    asyncio.run(_imorph_update(noconfirm))
+def imorph_update(noconfirm: bool, wow_versions: List[WoWVersion]) -> None:
+    asyncio.run(_imorph_update(noconfirm, wow_versions))
     input("\nPress anything to close.")
 
 
@@ -62,8 +62,10 @@ def _extract_imorph(imorph: IMorphDTO) -> None:
         zip_file.extractall(dest)
 
 
-def _check_possible_imorphs_updates() -> Tuple[List[IMorphDTO], List[str]]:
-    imorphs = _get_imorphs()
+def _check_possible_imorphs_updates(
+    wow_versions: List[WoWVersion],
+) -> Tuple[List[IMorphDTO], List[str]]:
+    imorphs = _get_imorphs(wow_versions)
     folders = glob.glob(f"{DOWNLOAD_FOLDER}/*iMorph*")
     old_imorphs: List[str] = []
     if not folders:
@@ -78,36 +80,47 @@ def _check_possible_imorphs_updates() -> Tuple[List[IMorphDTO], List[str]]:
     return (updatedable_imorphs, old_imorphs)
 
 
-def _get_imorphs() -> List[IMorphDTO]:
+def _get_imorphs(desired_versions: List[WoWVersion]) -> List[IMorphDTO]:
+    imorph_type = "net"
     with HTMLSession() as session:
         response = session.get(OWNED_CORE_LINK)
         dtos = []
-        for link in response.html.find("a[target='_blank'][href*='mega.nz/file']"):
-            text = link.element.text_content()
-            wow_version = None
-            for version in WoWVersion:
-                if version.pattern.search(text):
-                    wow_version = version
-                    break
-            else:
+        first_post = response.html.find("blockquote", first=True)
+
+        for version in desired_versions:
+            """
+            Match ownedforum post structure which is something among:
+            <b>{version}</b>
+            <br>
+            <a href=SearchedLink>iMorph - x.xx.xx {imorph_type} [x.xx.x.xxxxxx]</a>
+            """
+            link = first_post.xpath(
+                f"//b[text()[contains(., '{version}')]]"
+                "/following-sibling::br"
+                f"/following-sibling::a[.//b[text()='{imorph_type}']]",
+                first=True,
+            )
+            if not link:
                 continue
+
             dtos.append(
                 IMorphDTO(
-                    forum_name=link.element.text_content(),
+                    forum_name=link.text,
                     link=link.attrs["href"],
-                    version=wow_version,
+                    version=version,
                 )
             )
+
         return dtos
 
 
-async def _imorph_update(noconfirm: bool) -> None:
+async def _imorph_update(noconfirm: bool, wow_versions: List[WoWVersion]) -> None:
     print("Warning, before using new versions check on forum if it's safe!")
     print(f"iMorph Discord: {DISCORD_LINK}")
     print(f"iMorph forum thread: {OWNED_CORE_LINK}\n\n")
     print("Fetching download links from owned core..")
     mega_user = Mega().login()
-    imorphs, old_imorphs_paths = _check_possible_imorphs_updates()
+    imorphs, old_imorphs_paths = _check_possible_imorphs_updates(wow_versions)
 
     if imorphs:
         for imorph in imorphs:

@@ -21,6 +21,8 @@ The latest release can be found [here](https://github.com/RevinderDev/imorph-upd
 
 ## Running
 
+By default it will download `Retail` imorph with `(net)` version as this is what I am using. See Windows and Cmdline sections for details. 
+
 
 ### For Windows
 
@@ -30,6 +32,7 @@ Double click `.exe` file and console window will pop up.
 * Right click -> Create shortcut on `iMorphUpdater.exe`
 * On shortcut: Right click -> Properties 
 * add `-y` or `--noconfirm` to `Target` like so:
+* add `-w` and list of expansions you want iMorph for e.g. `-w RETAIL CLASSIC_CATACLYSM`.
 
 <p align="center">
   <img src="https://i.imgur.com/y02ds4Z.png">
@@ -37,11 +40,16 @@ Double click `.exe` file and console window will pop up.
 
 ### From command line
 ```
-usage: iMorphUpdater [-h] [-y]
+usage: imorph_updater [-h] [-y]
+                      [-w CLASSIC_ERA,CLASSIC_CATACLYSM,RETAIL,CLASSIC_CHINA,RETAIL_CHINA]
 
 optional arguments:
-  -h, --help       show this help message and exit
-  -y, --noconfirm  Auto confirm iMorph replacing/downloading.
+  -h, --help            show this help message and exit
+  -y, --noconfirm       Auto confirm iMorph
+                        replacing/downloading.
+  -w CLASSIC_ERA,CLASSIC_CATACLYSM,RETAIL,CLASSIC_CHINA,RETAIL_CHINA 
+                        Choose which WoWVersions iMorphs you
+                        want to download
 ```
 
 ```

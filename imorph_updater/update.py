@@ -16,6 +16,7 @@ from .models import IMorphDTO
 OWNED_CORE_LINK = "https://www.ownedcore.com/forums/wow-classic/wow-classic-bots-programs/935744-imorph-wow-classic.html"
 DISCORD_LINK = "https://discord.gg/imorph-wow-morpher-459575858970230784"
 DOWNLOAD_FOLDER = "iMorphs"
+IMORPH_TYPE = "net"
 
 
 def imorph_update(noconfirm: bool, wow_versions: List[WoWVersion]) -> None:
@@ -81,9 +82,10 @@ def _check_possible_imorphs_updates(
 
 
 def _get_imorphs(desired_versions: List[WoWVersion]) -> List[IMorphDTO]:
-    imorph_type = "net"
     with HTMLSession() as session:
         response = session.get(OWNED_CORE_LINK)
+        if response is None:
+            raise Exception("Could not connect to owned core")
         dtos = []
         first_post = response.html.find("blockquote", first=True)
 
@@ -97,7 +99,7 @@ def _get_imorphs(desired_versions: List[WoWVersion]) -> List[IMorphDTO]:
             link = first_post.xpath(
                 f"//b[text()[contains(., '{version}')]]"
                 "/following-sibling::br"
-                f"/following-sibling::a[.//b[text()='{imorph_type}']]",
+                f"/following-sibling::a[.//b[text()='{IMORPH_TYPE}']]",
                 first=True,
             )
             if not link:
